@@ -1,9 +1,9 @@
 % Argo GMM
-cd("C:\Users\ajs82292\Desktop\Research\Matlab\Source\Southern_Ocean")
-addpath("C:\Users\ajs82292\Desktop\Research\Matlab\Script\Southern_Ocean")
-addpath("C:\Users\ajs82292\Desktop\Research\Matlab\Source\seawater")
-addpath(genpath('C:\Users\ajs82292\Desktop\Research\Matlab\Source\gsw_matlab_v3_06_16'));
-load Argo_profiles.mat
+cd("X")
+addpath("Y")
+addpath("GibbsSeaWater")
+addpath(genpath('recursiveGSW'));
+load Argo_profiles.mat # from ARGO_retrival.mat
 
 
 
