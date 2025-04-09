@@ -141,3 +141,124 @@ title('World Coastline')
 xlim([0,180])
 ylim([-72,-28])
 daspect([1 aspect_ratio 1])
+
+%% Plot Sal and Temp avgs and std devs
+
+%Plot Jones type plot (need actual salinity and temp for shape)
+sal_cell = {profiles.salt};  
+sal_mat = cell2mat(sal_cell)' ;
+
+temp_cell = {profiles.temp};  
+temp_mat = cell2mat(temp_cell)' ;
+
+train_sal_mat = sal_mat(train_idx,:) ;
+train_temp_mat = temp_mat(train_idx,:) ;
+
+clear sal_cell temp_cell sal_mat temp_mat
+
+n_clusters = length(unique_clusters);
+n_rows = ceil(sqrt(n_clusters));
+n_cols = ceil(n_clusters / n_rows);
+
+%Sal
+figure;
+DepInterval_custom = 300:900 ;
+
+for i = 1:length(unique_clusters)
+    nexttile;
+
+    cluster_id = unique_clusters(i);
+    cluster_idx = cluster_labels == cluster_id;
+    %sal_cluster = with_sal_test(cluster_idx,starting_depth:ending_depth) ;
+    sal_cluster = train_sal_mat(cluster_idx,:) ;
+end
+
+
+for i = 1:n_clusters
+    cluster_id = unique_clusters(i);
+    cluster_color = cmap(i, :);  
+    % Get high-probability profiles for this cluster
+    cluster_mask = (cluster_labels == cluster_id) ;
+    cluster_profiles = train_sal_mat(cluster_mask, :);
+    cluster_labels_subset = cluster_labels(cluster_idx);
+    if size(cluster_profiles, 1) < 5
+        continue;
+    end
+
+    mean_profile = mean(cluster_profiles, 1,'omitnan');
+    std_profile = std(cluster_profiles, 0, 1,'omitnan');
+    n_profiles = size(cluster_profiles, 1);
+    n_show = max(1, round(0.25 * n_profiles));
+    show_idx = randperm(n_profiles, n_show);
+    cluster_color = cmap(cluster_id,:);
+    subplot(n_rows, n_cols, i);
+    hold on;
+
+    for k = 1:n_show
+        plot(cluster_profiles(show_idx(k), :), DepInterval_custom, ...
+            'Color', [0.6 0.6 0.6 0.3]);
+    end
+
+    plot(mean_profile, DepInterval_custom, 'Color',cluster_color, 'LineWidth', 3);
+    plot(mean_profile + std_profile, DepInterval_custom,':', 'Color',cluster_color);
+    plot(mean_profile - std_profile, DepInterval_custom, ':', 'Color',cluster_color);
+    plot(mean_profile + 2*std_profile, DepInterval_custom, ':', 'Color',cluster_color);
+    plot(mean_profile - 2*std_profile, DepInterval_custom, ':', 'Color',cluster_color);
+
+    title(sprintf('Cluster %d', cluster_id));
+    xlabel('Salinity');
+    ylabel('Depth');
+    axis ij;
+end
+sgtitle('Salinity by Cluster');
+
+
+% Temp
+figure
+for i = 1:length(unique_clusters)
+    nexttile;
+
+    cluster_id = unique_clusters(i);
+    cluster_idx = cluster_labels == cluster_id;
+    %sal_cluster = with_sal_test(cluster_idx,starting_depth:ending_depth) ;
+    temp_cluster = train_temp_mat(cluster_idx,:) ;
+end
+
+
+for i = 1:n_clusters
+    cluster_id = unique_clusters(i);
+    cluster_color = cmap(i, :);  
+    % Get high-probability profiles for this cluster
+    cluster_mask = (cluster_labels == cluster_id) ;
+    cluster_profiles = train_temp_mat(cluster_mask, :);
+    cluster_labels_subset = cluster_labels(cluster_idx);
+    if size(cluster_profiles, 1) < 5
+        continue;
+    end
+
+    mean_profile = mean(cluster_profiles, 1,'omitnan');
+    std_profile = std(cluster_profiles, 0, 1,'omitnan');
+    n_profiles = size(cluster_profiles, 1);
+    n_show = max(1, round(0.25 * n_profiles));
+    show_idx = randperm(n_profiles, n_show);
+    cluster_color = cmap(cluster_id,:);
+    subplot(n_rows, n_cols, i);
+    hold on;
+
+    for k = 1:n_show
+        plot(cluster_profiles(show_idx(k), :), DepInterval_custom, ...
+            'Color', [0.6 0.6 0.6 0.3]);
+    end
+
+    plot(mean_profile, DepInterval_custom, 'Color',cluster_color, 'LineWidth', 3);
+    plot(mean_profile + std_profile, DepInterval_custom,':', 'Color',cluster_color);
+    plot(mean_profile - std_profile, DepInterval_custom, ':', 'Color',cluster_color);
+    plot(mean_profile + 2*std_profile, DepInterval_custom, ':', 'Color',cluster_color);
+    plot(mean_profile - 2*std_profile, DepInterval_custom, ':', 'Color',cluster_color);
+
+    title(sprintf('Cluster %d', cluster_id));
+    xlabel('Temperature');
+    ylabel('Depth');
+    axis ij;
+end
+sgtitle('Temperature by Cluster');
